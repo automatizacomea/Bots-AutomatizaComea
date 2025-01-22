@@ -147,7 +147,7 @@ select {
   border-radius: 0.75rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  max-width: 800px;
+  width: 100%; /* Alterado: ocupar toda largura disponível */
   margin: 0 auto;
 }
 
@@ -195,14 +195,13 @@ select {
   overflow-y: auto;
   padding: 1rem;
   background-color: var(--gray-50);
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
+  width: 100%; /* Alterado: ocupar toda largura */
 }
 
 .message {
   margin-bottom: 1rem;
-  max-width: 100%;
+  width: 100%; /* Alterado: ocupar toda largura */
+  max-width: 90%; /* Alterado: aumentar largura máxima */
   align-self: flex-start;
 }
 
@@ -269,9 +268,11 @@ select {
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  width: 100%; /* Alterado: ocupar toda largura */
 }
 
-.chat-input input {
+.chat-input textarea {
+  /* Alterado: mudado de input para textarea */
   flex: 1;
   padding: 0.625rem 1rem;
   border: 1px solid var(--gray-200);
@@ -283,15 +284,10 @@ select {
   font-size: 0.875rem;
   resize: none;
   min-height: 40px;
+  height: auto; /* Alterado: altura automática */
   max-height: 120px;
-  overflow-y: auto;
-  line-height: 1.5;
-  width: calc(100% - 50px);
-}
-
-.chat-input input:focus {
-  outline: none;
-  border-color: var(--primary-color);
+  width: 100%; /* Alterado: ocupar toda largura disponível */
+  margin-right: 8px; /* Alterado: espaçamento do botão */
 }
 
 .chat-input button {
@@ -302,6 +298,11 @@ select {
   border-radius: 0.5rem;
   cursor: pointer;
   transition: background-color 0.2s;
+  min-width: 40px; /* Alterado: largura mínima */
+  height: 40px; /* Alterado: altura fixa */
+  display: flex; /* Alterado: melhor alinhamento do ícone */
+  align-items: center;
+  justify-content: center;
 }
 
 .chat-input button:hover {
