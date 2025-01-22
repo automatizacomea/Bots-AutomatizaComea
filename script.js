@@ -51,9 +51,9 @@ Ao fornecer workflows:
 - Evite IDs placeholder
 - Teste a funcionalidade dos nodes
 
-Mantenha-se atualizado com a última versão do N8N (self-hosted, 2024+). Limite suas respostas a 200 caracteres e use markdown para formatação.` },
-  { name: "Criador de Tabelas", content: "Você é um especialista em modelagem de dados para Supabase e Baserow. Suas responsabilidades incluem: 1) Definir estruturas de tabelas otimizadas, 2) Recomendar tipos de dados apropriados, 3) Estabelecer relacionamentos entre tabelas, 4) Implementar constraints e validações, 5) Configurar índices para performance, 6) Definir políticas de RLS (Row Level Security), 7) Criar views e funções quando necessário, 8) Otimizar queries e performance. Sempre considere as melhores práticas de cada plataforma. Limite suas respostas a 200 caracteres e use markdown para formatação." },
-  { name: "Gerador de Prompts", content: "Você é um especialista em engenharia de prompts para IAs. Suas responsabilidades incluem: 1) Criar prompts claros e específicos, 2) Definir o papel e comportamento do assistente, 3) Estabelecer restrições e limitações, 4) Incluir exemplos relevantes, 5) Definir formato de saída esperado, 6) Adicionar instruções de tratamento de erro, 7) Implementar verificações de qualidade, 8) Otimizar tokens utilizados. Sempre considere o contexto e objetivo final. Limite suas respostas a 200 caracteres e use markdown para formatação." }
+Use markdown para formatação e estruturação das respostas.` },
+  { name: "Criador de Tabelas", content: "Você é um especialista em modelagem de dados para Supabase e Baserow. Suas responsabilidades incluem: 1) Definir estruturas de tabelas otimizadas, 2) Recomendar tipos de dados apropriados, 3) Estabelecer relacionamentos entre tabelas, 4) Implementar constraints e validações, 5) Configurar índices para performance, 6) Definir políticas de RLS (Row Level Security), 7) Criar views e funções quando necessário, 8) Otimizar queries e performance. Sempre considere as melhores práticas de cada plataforma. Use markdown para formatação e estruturação das respostas." },
+  { name: "Gerador de Prompts", content: "Você é um especialista em engenharia de prompts para IAs. Suas responsabilidades incluem: 1) Criar prompts claros e específicos, 2) Definir o papel e comportamento do assistente, 3) Estabelecer restrições e limitações, 4) Incluir exemplos relevantes, 5) Definir formato de saída esperado, 6) Adicionar instruções de tratamento de erro, 7) Implementar verificações de qualidade, 8) Otimizar tokens utilizados. Sempre considere o contexto e objetivo final. Use markdown para formatação e estruturação das respostas." }
 ];
 
 let conversationHistory = [];
@@ -156,7 +156,7 @@ async function sendMessage() {
           ...conversationHistory,
         ],
         temperature: 0.7,
-        max_tokens: 150,
+        max_tokens: 2000, // Aumentado para permitir respostas mais longas
       }),
     });
 
@@ -192,24 +192,13 @@ function addMessageToChat(role, content) {
 }
 
 // Handle keypress events
-function handleKeyPress(e) {
-  if (e.key === 'Enter') {
-    if (e.shiftKey) {
-      // Prevent default to avoid form submission
-      e.preventDefault();
-      
-      // Get cursor position
-      const start = e.target.selectionStart;
-      const end = e.target.selectionEnd;
-      const value = e.target.value;
-      
-      // Insert new line at cursor position
-      e.target.value = value.substring(0, start) + '\n' + value.substring(end);
-      
-      // Move cursor after inserted new line
-      e.target.selectionStart = e.target.selectionEnd = start + 1;
+function handleKeyPress(event) {
+  if (event.key === 'Enter') {
+    if (event.shiftKey) {
+      // Não faz nada, deixa o comportamento padrão do textarea
+      return;
     } else {
-      e.preventDefault();
+      event.preventDefault();
       sendMessage();
     }
   }
@@ -217,7 +206,7 @@ function handleKeyPress(e) {
 
 // Event listeners
 document.getElementById("sendMessage").addEventListener("click", sendMessage);
-document.getElementById("userInput").addEventListener("keypress", handleKeyPress);
+document.getElementById("userInput").addEventListener("keydown", handleKeyPress);
 document.getElementById("resetChat").addEventListener("click", resetChat);
 document.getElementById("saveSelection").addEventListener("click", saveSelection);
 document.getElementById("changePrompt").addEventListener("click", changePrompt);
