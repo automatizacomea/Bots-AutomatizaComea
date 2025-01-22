@@ -1,6 +1,6 @@
 :root {
-  --primary-color: #08043c;
-  --primary-light: #0a0654;
+  --primary-color: #034c37;
+  --primary-light: #046344;
   --white: #ffffff;
   --gray-50: #f9fafb;
   --gray-100: #f3f4f6;
@@ -8,9 +8,9 @@
   --gray-300: #d1d5db;
   --gray-400: #9ca3af;
   --gray-500: #6b7280;
-  --blue-200: #bfdbfe;
-  --blue-500: #3b82f6;
-  --blue-600: #2563eb;
+  --green-200: #a7f3d0;
+  --green-500: #10b981;
+  --green-600: #059669;
 }
 
 * {
@@ -51,7 +51,7 @@ body {
 }
 
 .header p {
-  color: var(--blue-200);
+  color: var(--green-200);
   font-size: clamp(0.875rem, 3vw, 1rem);
 }
 
@@ -69,7 +69,7 @@ body {
 
 .form-group label {
   display: block;
-  color: var(--blue-200);
+  color: var(--green-200);
   font-size: 0.875rem;
   margin-bottom: 0.5rem;
 }
@@ -85,7 +85,7 @@ body {
   right: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--blue-200);
+  color: var(--green-200);
 }
 
 select,
@@ -94,7 +94,7 @@ input[type="text"] {
   width: 100%;
   padding: 0.625rem 1rem;
   background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(191, 219, 254, 0.2);
+  border: 1px solid rgba(167, 243, 208, 0.2);
   border-radius: 0.5rem;
   color: var(--primary-color);
   font-size: 0.875rem;
@@ -121,7 +121,7 @@ select {
 .change-button {
   width: 100%;
   padding: 0.625rem 1rem;
-  background-color: var(--blue-500);
+  background-color: var(--green-500);
   color: var(--white);
   border: none;
   border-radius: 0.5rem;
@@ -132,7 +132,7 @@ select {
 
 .save-button:hover,
 .change-button:hover {
-  background-color: var(--blue-600);
+  background-color: var(--green-600);
 }
 
 .change-button {
@@ -219,6 +219,7 @@ select {
   padding: 0.75rem;
   border-radius: 0.5rem;
   font-size: 0.875rem;
+  white-space: pre-wrap;
 }
 
 .message.bot .message-content {
@@ -268,6 +269,11 @@ select {
   transition: border-color 0.2s;
   color: var(--primary-color);
   background-color: var(--white);
+  resize: none;
+  min-height: 40px;
+  max-height: 120px;
+  overflow-y: auto;
+  line-height: 1.5;
 }
 
 .chat-input input:focus {
