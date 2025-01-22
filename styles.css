@@ -1,6 +1,6 @@
 :root {
-  --primary-color: #034c37;
-  --primary-light: #046344;
+  --primary-color: #023020;
+  --primary-light: #034c37;
   --white: #ffffff;
   --gray-50: #f9fafb;
   --gray-100: #f3f4f6;
@@ -22,7 +22,7 @@
 
 body {
   min-height: 100vh;
-  background: linear-gradient(to bottom, var(--primary-color), var(--primary-light));
+  background: linear-gradient(to bottom, #000000, #111111);
   padding: 1rem;
 }
 
@@ -89,8 +89,7 @@ body {
 }
 
 select,
-input[type="password"],
-input[type="text"] {
+input[type="password"] {
   width: 100%;
   padding: 0.625rem 1rem;
   background-color: rgba(255, 255, 255, 0.05);
@@ -237,10 +236,14 @@ select {
   padding: 0.5rem;
   border-radius: 0.25rem;
   overflow-x: auto;
+  margin: 0.5rem 0;
 }
 
 .message-content code {
   font-family: monospace;
+  background: rgba(0, 0, 0, 0.1);
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
 }
 
 .message-content p {
@@ -269,6 +272,8 @@ select {
   transition: border-color 0.2s;
   color: var(--primary-color);
   background-color: var(--white);
+  font-family: inherit;
+  font-size: 0.875rem;
   resize: none;
   min-height: 40px;
   max-height: 120px;
