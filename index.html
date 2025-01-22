@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistentes Fluxo Juridicos</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://unpkg.com/lucide-icons/dist/umd/lucide.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/marked/lib/marked.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Assistentes Fluxo Juridicos</h1>
+            <p>Assistentes Inteligentes Para Advogados</p>
+        </div>
+        
+        <div class="config-section">
+            <div class="form-group">
+                <label for="promptSelect">
+                    <i data-lucide="message-circle"></i>
+                    Selecionar Assistente:
+                </label>
+                <div class="select-wrapper">
+                    <select id="promptSelect">
+                        <option value="">Selecionar Assistente</option>
+                    </select>
+                    <i data-lucide="chevron-down"></i>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="apiKey">
+                    <i data-lucide="lock"></i>
+                    Chave da API OpenAI:
+                </label>
+                <div class="input-wrapper">
+                    <input type="password" id="apiKey" required placeholder="sk-...">
+                    <i data-lucide="lock"></i>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button id="saveSelection" class="save-button">Salvar Seleção</button>
+                <button id="changePrompt" class="change-button" disabled>Trocar Prompt</button>
+            </div>
+        </div>
+
+        <div class="chat-section">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <i data-lucide="message-circle"></i>
+                    <span>Chat</span>
+                </div>
+                <button id="resetChat" class="reset-button" disabled>
+                    <i data-lucide="refresh-ccw"></i>
+                    Resetar Conversa
+                </button>
+            </div>
+            
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages"></div>
+                <div class="chat-input">
+                    <input type="text" id="userInput" placeholder="Digite sua mensagem..." disabled>
+                    <button id="sendMessage" disabled>
+                        <i data-lucide="send"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
