@@ -138,7 +138,7 @@ Specific Instructions:
 - JSON Output / Code Block Output Optimizations:
   - Always output minified codes in the code block. (removing unnecessary characters like spaces in the source code)
 `
-  }
+  },
 ];
 
 let conversationHistory = [];
