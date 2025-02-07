@@ -60,14 +60,32 @@ document.addEventListener("DOMContentLoaded", () => {
       const agent = {
         id: Date.now(),
         name: formData.get("name"),
-        personality: formData.get("personality"),
-        knowledge: formData.get("knowledge"),
-        icon: formData.get("icon"),
-        responseFormat: formData.get("responseFormat"),
-        model: "gpt-4",
+        objective: formData.get("objective"),
+        targetAudience: formData.get("targetAudience"),
+        specializations: formData.getAll("specializations"),
+        basicQuestions: formData.get("basicQuestions"),
+        genericExplanations: formData.get("genericExplanations"),
+        suggestJurisprudence: formData.get("suggestJurisprudence"),
+        persuasionLevel: formData.get("persuasionLevel"),
+        communicationStyle: formData.getAll("communicationStyle"),
+        personality: formData.getAll("personality"),
+        humorLevel: formData.get("humorLevel"),
+        complexityLevel: formData.get("complexityLevel"),
+        clientNeed: formData.get("clientNeed"),
+        hiringMethods: formData.getAll("hiringMethods"),
+        autoInfo: formData.getAll("autoInfo"),
+        maxQuestions: formData.get("maxQuestions"),
+        forwarding: formData.get("forwarding"),
+        suggestAlternatives: formData.get("suggestAlternatives"),
+        benefits: formData.getAll("benefits"),
+        restrictedTerms: formData.get("restrictedTerms"),
+        formatting: formData.get("formatting"),
+        informValues: formData.get("informValues"),
+        valueHandling: formData.get("valueHandling"),
+        differentials: formData.getAll("differentials"),
       }
 
-      if (!agent.name || !agent.personality) {
+      if (!agent.name || !agent.objective) {
         alert("Por favor, preencha todos os campos obrigatórios")
         return
       }
@@ -100,11 +118,12 @@ document.addEventListener("DOMContentLoaded", () => {
               (agent) => `
                 <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
                     <div class="agent-header">
-                        <img src="https://api.iconify.design/lucide:${agent.icon}.svg" alt="${agent.name}" class="w-8 h-8">
+                        <img src="https://api.iconify.design/lucide:bot.svg" alt="${agent.name}" class="w-8 h-8">
                         <h3 class="text-xl font-semibold">${agent.name}</h3>
                     </div>
-                    <p class="text-gray-600 mb-2">Personalidade: ${agent.personality}</p>
-                    <p class="text-gray-600 mb-4">Formato de Resposta: ${agent.responseFormat}</p>
+                    <p class="text-gray-600 mb-2">Objetivo: ${agent.objective}</p>
+                    <p class="text-gray-600 mb-2">Público-alvo: ${agent.targetAudience}</p>
+                    <p class="text-gray-600 mb-4">Especializações: ${agent.specializations.join(", ")}</p>
                     <div class="flex justify-between gap-2">
                         <button class="button secondary small" onclick="editAgent(${agent.id})">Editar</button>
                         <button class="button primary small" onclick="startChatWithAgent(${agent.id})">Chat</button>
@@ -124,11 +143,19 @@ document.addEventListener("DOMContentLoaded", () => {
     createAgentModal.classList.add("active")
     const form = document.getElementById("agentForm")
 
-    form.querySelector("#agentName").value = agent.name
-    form.querySelector("#agentPersonality").value = agent.personality
-    form.querySelector("#agentKnowledge").value = agent.knowledge || ""
-    form.querySelector("#agentIcon").value = agent.icon
-    form.querySelector("#responseFormat").value = agent.responseFormat
+    // Preencher o formulário com os dados do agente
+    Object.keys(agent).forEach((key) => {
+      const input = form.querySelector(`[name="${key}"]`)
+      if (input) {
+        if (input.type === "select-multiple") {
+          Array.from(input.options).forEach((option) => {
+            option.selected = agent[key].includes(option.value)
+          })
+        } else {
+          input.value = agent[key]
+        }
+      }
+    })
 
     form.onsubmit = (e) => {
       e.preventDefault()
@@ -137,10 +164,29 @@ document.addEventListener("DOMContentLoaded", () => {
       const updatedAgent = {
         ...agent,
         name: formData.get("name"),
-        personality: formData.get("personality"),
-        knowledge: formData.get("knowledge"),
-        icon: formData.get("icon"),
-        responseFormat: formData.get("responseFormat"),
+        objective: formData.get("objective"),
+        targetAudience: formData.get("targetAudience"),
+        specializations: formData.getAll("specializations"),
+        basicQuestions: formData.get("basicQuestions"),
+        genericExplanations: formData.get("genericExplanations"),
+        suggestJurisprudence: formData.get("suggestJurisprudence"),
+        persuasionLevel: formData.get("persuasionLevel"),
+        communicationStyle: formData.getAll("communicationStyle"),
+        personality: formData.getAll("personality"),
+        humorLevel: formData.get("humorLevel"),
+        complexityLevel: formData.get("complexityLevel"),
+        clientNeed: formData.get("clientNeed"),
+        hiringMethods: formData.getAll("hiringMethods"),
+        autoInfo: formData.getAll("autoInfo"),
+        maxQuestions: formData.get("maxQuestions"),
+        forwarding: formData.get("forwarding"),
+        suggestAlternatives: formData.get("suggestAlternatives"),
+        benefits: formData.getAll("benefits"),
+        restrictedTerms: formData.get("restrictedTerms"),
+        formatting: formData.get("formatting"),
+        informValues: formData.get("informValues"),
+        valueHandling: formData.get("valueHandling"),
+        differentials: formData.getAll("differentials"),
       }
 
       const index = state.agents.findIndex((a) => a.id === agentId)
