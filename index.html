@@ -3,75 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bots AC</title>
+    <title>Plataforma de Agentes IA</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <link href="https://unpkg.com/lucide-icons/dist/umd/lucide.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/marked/lib/marked.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Bots Automatiza Comea</h1>
-            <p>Bots Auxiliares Para o Dia a Dia</p>
-        </div>
-        
-        <div class="config-section">
-            <div class="form-group">
-                <label for="promptSelect">
-                    <i data-lucide="message-circle"></i>
-                    Selecionar Bot:
-                </label>
-                <div class="select-wrapper">
-                    <select id="promptSelect">
-                        <option value="">Selecionar Bot</option>
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <nav class="sidebar w-64 shadow-lg">
+            <div class="p-6">
+                <h1 class="text-2xl font-bold">Agentes IA</h1>
+            </div>
+            <ul class="space-y-2 p-4">
+                <li><a href="#" class="nav-item active" data-page="agentsPage">Meus Agentes</a></li>
+                <li><a href="#" class="nav-item" data-page="chatsPage">Chats</a></li>
+                <li><a href="#" class="nav-item" data-page="whatsappPage">WhatsApp</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto p-8">
+            <!-- Agents Page -->
+            <div id="agentsPage" class="page active">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-bold">Meus Agentes</h2>
+                    <button id="createAgent" class="button primary">Criar Novo Agente</button>
+                </div>
+                <div id="agentsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
+
+            <!-- Chats Page -->
+            <div id="chatsPage" class="page hidden">
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-3xl font-bold mb-6">Chat com Agente</h2>
+                    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-2">Chave OpenAI</label>
+                            <input type="password" id="openaiKey" class="w-full p-2 border rounded" placeholder="sk-...">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-2">Selecionar Agente</label>
+                            <select id="chatAgent" class="w-full p-2 border rounded"></select>
+                        </div>
+                    </div>
+                    <div id="chatMessages" class="bg-white rounded-lg shadow-md p-6 mb-6 h-96 overflow-y-auto"></div>
+                    <div class="flex gap-2">
+                        <input type="text" id="messageInput" class="flex-1 p-2 border rounded" placeholder="Digite sua mensagem...">
+                        <button id="sendMessage" class="button primary">Enviar</button>
+                        <button id="resetChat" class="button secondary">Resetar Conversa</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WhatsApp Page -->
+            <div id="whatsappPage" class="page hidden">
+                <div class="max-w-4xl mx-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-3xl font-bold">Instâncias WhatsApp</h2>
+                        <button id="createInstance" class="button primary">Criar Nova Instância</button>
+                    </div>
+                    <div id="instancesList" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de Criação de Agente -->
+    <div id="createAgentModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-2xl font-bold mb-4">Criar Novo Agente</h2>
+            <form id="agentForm">
+                <div class="form-group">
+                    <label for="agentName">Nome do Agente</label>
+                    <input type="text" id="agentName" name="name" required placeholder="Ex: Assistente de Vendas">
+                </div>
+                <div class="form-group">
+                    <label for="agentPersonality">Personalidade</label>
+                    <select id="agentPersonality" name="personality" required>
+                        <option value="">Selecione uma personalidade</option>
+                        <option value="professional">Profissional</option>
+                        <option value="friendly">Amigável</option>
+                        <option value="casual">Casual</option>
                     </select>
-                    <i data-lucide="chevron-down"></i>
                 </div>
-            </div>
-
-            <div class="form-group">
-                <label for="apiKey">
-                    <i data-lucide="lock"></i>
-                    Chave da API OpenAI:
-                </label>
-                <div class="input-wrapper">
-                    <input type="password" id="apiKey" required placeholder="sk-...">
-                    <i data-lucide="lock"></i>
+                <div class="form-group">
+                    <label for="agentKnowledge">Conhecimento Base</label>
+                    <textarea id="agentKnowledge" name="knowledge" placeholder="Insira o conhecimento base do agente..."></textarea>
                 </div>
-            </div>
-
-            <div class="button-group">
-                <button id="saveSelection" class="save-button">Salvar Seleção</button>
-                <button id="changePrompt" class="change-button" disabled>Trocar Bot</button>
-            </div>
-        </div>
-
-        <div class="chat-section">
-            <div class="chat-header">
-                <div class="chat-title">
-                    <i data-lucide="message-circle"></i>
-                    <span>Chat</span>
+                <div class="form-group">
+                    <label for="agentIcon">Ícone do Agente</label>
+                    <select id="agentIcon" name="icon" required>
+                        <option value="">Selecione um ícone</option>
+                        <option value="bot">Bot</option>
+                        <option value="user">Usuário</option>
+                        <option value="briefcase">Maleta</option>
+                        <option value="heart">Coração</option>
+                    </select>
                 </div>
-                <button id="resetChat" class="reset-button" disabled>
-                    <i data-lucide="refresh-ccw"></i>
-                    Resetar Conversa
-                </button>
-            </div>
-            
-            <div class="chat-container">
-                <div class="chat-messages" id="chatMessages"></div>
-                <div class="chat-input">
-                    <textarea id="userInput" placeholder="Digite sua mensagem..." rows="1"></textarea>
-                    <button id="sendMessage">
-                        <i data-lucide="send"></i>
-                    </button>
+                <div class="form-group">
+                    <label for="responseFormat">Formato de Resposta</label>
+                    <select id="responseFormat" name="responseFormat" required>
+                        <option value="">Selecione um formato</option>
+                        <option value="text">Texto Simples</option>
+                        <option value="markdown">Markdown</option>
+                        <option value="html">HTML</option>
+                    </select>
                 </div>
-            </div>
+                <div class="button-group">
+                    <button type="button" class="button secondary" id="cancelAgent">Cancelar</button>
+                    <button type="submit" class="button primary">Criar Agente</button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Modal de Criação de Instância WhatsApp -->
+    <div id="createInstanceModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-2xl font-bold mb-4">Limpe as sessões do seu WhatsApp antes de continuar</h2>
+            <div class="space-y-4 mb-6">
+                <p class="font-medium">1. Abra o WhatsApp em seu celular</p>
+                <ul class="list-disc pl-8 space-y-2">
+                    <li>Android: toque em Mais opções > Aparelhos conectados.</li>
+                    <li>iPhone: toque em Configurações > Aparelhos conectados.</li>
+                </ul>
+                <p class="font-medium">2. Toque em um aparelho conectado.</p>
+                <p class="font-medium">3. Toque em DESCONECTAR.</p>
+            </div>
+            <div class="form-group">
+                <label>Número de telefone que será conectado</label>
+                <input type="text" id="phoneNumber" class="w-full p-2 border rounded" placeholder="(00) 00000-0000">
+            </div>
+            <div class="button-group">
+                <button type="button" class="button secondary" id="cancelInstance">Cancelar</button>
+                <button type="button" class="button primary" id="connectInstance">Conectar esse número</button>
+            </div>
+            <p class="text-sm text-gray-500 mt-4">
+                Precisa de ajuda? <a href="#" class="text-primary hover:underline">Entre em contato com nosso suporte</a>
+            </p>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
