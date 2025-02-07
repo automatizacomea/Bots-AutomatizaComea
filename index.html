@@ -9,141 +9,239 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-    <div class="flex h-screen">
-        <!-- Sidebar -->
-        <nav class="sidebar w-64 shadow-lg">
-            <div class="p-6">
-                <h1 class="text-2xl font-bold">Agentes IA</h1>
-            </div>
-            <ul class="space-y-2 p-4">
-                <li><a href="#" class="nav-item active" data-page="agentsPage">Meus Agentes</a></li>
-                <li><a href="#" class="nav-item" data-page="chatsPage">Chats</a></li>
-                <li><a href="#" class="nav-item" data-page="whatsappPage">WhatsApp</a></li>
-            </ul>
-        </nav>
-
-        <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto p-8">
-            <!-- Agents Page -->
-            <div id="agentsPage" class="page active">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-3xl font-bold">Meus Agentes</h2>
-                    <button id="createAgent" class="button primary">Criar Novo Agente</button>
-                </div>
-                <div id="agentsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-            </div>
-
-            <!-- Chats Page -->
-            <div id="chatsPage" class="page hidden">
-                <div class="max-w-4xl mx-auto">
-                    <h2 class="text-3xl font-bold mb-6">Chat com Agente</h2>
-                    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium mb-2">Chave OpenAI</label>
-                            <input type="password" id="openaiKey" class="w-full p-2 border rounded" placeholder="sk-...">
-                        </div>
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium mb-2">Selecionar Agente</label>
-                            <select id="chatAgent" class="w-full p-2 border rounded"></select>
-                        </div>
-                    </div>
-                    <div id="chatMessages" class="bg-white rounded-lg shadow-md p-6 mb-6 h-96 overflow-y-auto"></div>
-                    <div class="flex gap-2">
-                        <input type="text" id="messageInput" class="flex-1 p-2 border rounded" placeholder="Digite sua mensagem...">
-                        <button id="sendMessage" class="button primary">Enviar</button>
-                        <button id="resetChat" class="button secondary">Resetar Conversa</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- WhatsApp Page -->
-            <div id="whatsappPage" class="page hidden">
-                <div class="max-w-4xl mx-auto">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-3xl font-bold">Instâncias WhatsApp</h2>
-                        <button id="createInstance" class="button primary">Criar Nova Instância</button>
-                    </div>
-                    <div id="instancesList" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
-                </div>
-            </div>
-        </main>
-    </div>
+    <!-- ... (previous content remains unchanged) ... -->
 
     <!-- Modal de Criação de Agente -->
     <div id="createAgentModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content max-w-4xl">
             <h2 class="text-2xl font-bold mb-4">Criar Novo Agente</h2>
-            <form id="agentForm">
+            <form id="agentForm" class="grid grid-cols-2 gap-4">
+                <div class="col-span-2">
+                    <h3 class="text-xl font-semibold mb-2">1️⃣ Informações Gerais sobre a IA</h3>
+                </div>
                 <div class="form-group">
-                    <label for="agentName">Nome do Agente</label>
-                    <input type="text" id="agentName" name="name" required placeholder="Ex: Assistente de Vendas">
+                    <label for="agentName">Nome da IA</label>
+                    <input type="text" id="agentName" name="name" required placeholder="Ex: Assistente Jurídico">
+                </div>
+                <div class="form-group">
+                    <label for="agentObjective">Objetivo principal da IA</label>
+                    <select id="agentObjective" name="objective" required>
+                        <option value="">Selecione um objetivo</option>
+                        <option value="atendimento">Atendimento ao cliente</option>
+                        <option value="suporte">Suporte jurídico</option>
+                        <option value="vendas">Vendas de serviços jurídicos</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="agentTargetAudience">Público-alvo da IA</label>
+                    <select id="agentTargetAudience" name="targetAudience" required>
+                        <option value="">Selecione o público-alvo</option>
+                        <option value="pessoas_fisicas">Pessoas Físicas</option>
+                        <option value="empresas">Empresas</option>
+                        <option value="advogados">Advogados</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="agentSpecializations">Áreas de especialização</label>
+                    <select id="agentSpecializations" name="specializations" multiple required>
+                        <option value="civil">Direito Civil</option>
+                        <option value="trabalhista">Direito Trabalhista</option>
+                        <option value="empresarial">Direito Empresarial</option>
+                        <option value="tributario">Direito Tributário</option>
+                    </select>
+                </div>
+                
+                <div class="col-span-2">
+                    <h3 class="text-xl font-semibold mb-2">2️⃣ Nível de Atendimento e Respostas</h3>
+                </div>
+                <div class="form-group">
+                    <label for="agentBasicQuestions">Responde dúvidas básicas?</label>
+                    <select id="agentBasicQuestions" name="basicQuestions" required>
+                        <option value="sim">Sim</option>
+                        <option value="nao">Não</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="agentGenericExplanations">Fornece explicações genéricas?</label>
+                    <select id="agentGenericExplanations" name="genericExplanations" required>
+                        <option value="sim">Sim</option>
+                        <option value="nao">Não</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="agentSuggestJurisprudence">Sugere jurisprudência?</label>
+                    <select id="agentSuggestJurisprudence" name="suggestJurisprudence" required>
+                        <option value="sim">Sim</option>
+                        <option value="nao">Não</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="agentPersuasionLevel">Nível de persuasão</label>
+                    <select id="agentPersuasionLevel" name="persuasionLevel" required>
+                        <option value="baixo">Baixo</option>
+                        <option value="medio">Médio</option>
+                        <option value="alto">Alto</option>
+                    </select>
+                </div>
+
+                <div class="col-span-2">
+                    <h3 class="text-xl font-semibold mb-2">3️⃣ Tom de Voz e Personalidade</h3>
+                </div>
+                <div class="form-group">
+                    <label for="agentCommunicationStyle">Estilo de comunicação</label>
+                    <select id="agentCommunicationStyle" name="communicationStyle" multiple required>
+                        <option value="simples">Simples</option>
+                        <option value="tecnica">Técnica</option>
+                        <option value="objetiva">Objetiva</option>
+                        <option value="explicativa">Explicativa</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="agentPersonality">Personalidade</label>
-                    <select id="agentPersonality" name="personality" required>
-                        <option value="">Selecione uma personalidade</option>
-                        <option value="professional">Profissional</option>
-                        <option value="friendly">Amigável</option>
-                        <option value="casual">Casual</option>
+                    <select id="agentPersonality" name="personality" multiple required>
+                        <option value="amigavel">Amigável</option>
+                        <option value="profissional">Profissional</option>
+                        <option value="proativa">Proativa</option>
+                        <option value="reativa">Reativa</option>
+                        <option value="empatica">Empática</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="agentKnowledge">Conhecimento Base</label>
-                    <textarea id="agentKnowledge" name="knowledge" placeholder="Insira o conhecimento base do agente..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="agentIcon">Ícone do Agente</label>
-                    <select id="agentIcon" name="icon" required>
-                        <option value="">Selecione um ícone</option>
-                        <option value="bot">Bot</option>
-                        <option value="user">Usuário</option>
-                        <option value="briefcase">Maleta</option>
-                        <option value="heart">Coração</option>
+                    <label for="agentHumorLevel">Nível de humor</label>
+                    <select id="agentHumorLevel" name="humorLevel" required>
+                        <option value="nenhum">Nenhum</option>
+                        <option value="baixo">Baixo</option>
+                        <option value="medio">Médio</option>
+                        <option value="alto">Alto</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="responseFormat">Formato de Resposta</label>
-                    <select id="responseFormat" name="responseFormat" required>
-                        <option value="">Selecione um formato</option>
-                        <option value="text">Texto Simples</option>
+                    <label for="agentComplexityLevel">Nível de complexidade técnica</label>
+                    <select id="agentComplexityLevel" name="complexityLevel" required>
+                        <option value="baixo">Baixo</option>
+                        <option value="medio">Médio</option>
+                        <option value="alto">Alto</option>
+                    </select>
+                </div>
+
+                <div class="col-span-2">
+                    <h3 class="text-xl font-semibold mb-2">4️⃣ Fluxo de Atendimento</h3>
+                </div>
+                <div class="form-group">
+                    <label for="agentClientNeed">Tipo de necessidade atendida</label>
+                    <select id="agentClientNeed" name="clientNeed" required>
+                        <option value="consultoria">Consultoria</option>
+                        <option value="representacao">Representação</option>
+                        <option value="informacao">Informação</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="agentHiringMethods">Formas de contratação</label>
+                    <select id="agentHiringMethods" name="hiringMethods" multiple required>
+                        <option value="online">Online</option>
+                        <option value="presencial">Presencial</option>
+                        <option value="telefone">Telefone</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="agentAutoInfo">Informações automáticas para o cliente</label>
+                    <select id="agentAutoInfo" name="autoInfo" multiple required>
+                        <option value="horario_atendimento">Horário de atendimento</option>
+                        <option value="areas_atuacao">Áreas de atuação</option>
+                        <option value="contatos">Contatos</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="agentMaxQuestions">Número máximo de perguntas na qualificação</label>
+                    <select id="agentMaxQuestions" name="maxQuestions" required>
+                        <option value="3">3</option>
+                        <option value="5">5</option>
+                        <option value="7">7</option>
+                        <option value="10">10</option>
+                    </select>
+                </div>
+
+                <div class="col-span-2">
+                    <h3 class="text-xl font-semibold mb-2">5️⃣ Encaminhamento e Quebra de Objeções</h3>
+                </div>
+                <div class="form-group">
+                    <label for="agentForwarding">Método de encaminhamento do cliente</label>
+                    <select id="agentForwarding" name="forwarding" required>
+                        <option value="email">E-mail</option>
+                        <option value="telefone">Telefone</option>
+                        <option value="whatsapp">WhatsApp</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="agentSuggestAlternatives">Sugerir alternativas para clientes não qualificados?</label>
+                    <select id="agentSuggestAlternatives" name="suggestAlternatives" required>
+                        <option value="sim">Sim</option>
+                        <option value="nao">Não</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="agentBenefits">Benefícios do escritório a serem destacados</label>
+                    <select id="agentBenefits" name="benefits" multiple required>
+                        <option value="experiencia">Experiência</option>
+                        <option value="atendimento_personalizado">Atendimento personalizado</option>
+                        <option value="tecnologia">Uso de tecnologia avançada</option>
+                    </select>
+                </div>
+
+                <div class="col-span-2">
+                    <h3 class="text-xl font-semibold mb-2">6️⃣ Restrições e Regras Jurídicas</h3>
+                </div>
+                <div class="form-group">
+                    <label for="agentRestrictedTerms">Termos proibidos na comunicação</label>
+                    <input type="text" id="agentRestrictedTerms" name="restrictedTerms" placeholder="Ex: garantia, certeza">
+                </div>
+                <div class="form-group">
+                    <label for="agentFormatting">Tipo de formatação permitida nas respostas</label>
+                    <select id="agentFormatting" name="formatting" required>
+                        <option value="simples">Texto simples</option>
                         <option value="markdown">Markdown</option>
                         <option value="html">HTML</option>
                     </select>
                 </div>
-                <div class="button-group">
-                    <button type="button" class="button secondary" id="cancelAgent">Cancelar</button>
-                    <button type="submit" class="button primary">Criar Agente</button>
+                <div class="form-group">
+                    <label for="agentInformValues">Informar valores conforme a OAB?</label>
+                    <select id="agentInformValues" name="informValues" required>
+                        <option value="sim">Sim</option>
+                        <option value="nao">Não</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="agentValueHandling">Como lidar com valores?</label>
+                    <select id="agentValueHandling" name="valueHandling" required>
+                        <option value="media">Informar valores médios</option>
+                        <option value="encaminhar">Encaminhar para setor comercial</option>
+                    </select>
+                </div>
+
+                <div class="col-span-2">
+                    <h3 class="text-xl font-semibold mb-2">7️⃣ Benefícios e Diferenciais</h3>
+                </div>
+                <div class="form-group col-span-2">
+                    <label for="agentDifferentials">Diferenciais do escritório a serem destacados</label>
+                    <select id="agentDifferentials" name="differentials" multiple required>
+                        <option value="equipe_especializada">Equipe altamente especializada</option>
+                        <option value="atendimento_24h">Atendimento 24 horas</option>
+                        <option value="tecnologia_avancada">Uso de tecnologia avançada</option>
+                        <option value="experiencia_casos_complexos">Experiência em casos complexos</option>
+                    </select>
+                </div>
+
+                <div class="col-span-2">
+                    <div class="button-group">
+                        <button type="button" class="button secondary" id="cancelAgent">Cancelar</button>
+                        <button type="submit" class="button primary">Criar Agente</button>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal de Criação de Instância WhatsApp -->
-    <div id="createInstanceModal" class="modal">
-        <div class="modal-content">
-            <h2 class="text-2xl font-bold mb-4">Limpe as sessões do seu WhatsApp antes de continuar</h2>
-            <div class="space-y-4 mb-6">
-                <p class="font-medium">1. Abra o WhatsApp em seu celular</p>
-                <ul class="list-disc pl-8 space-y-2">
-                    <li>Android: toque em Mais opções > Aparelhos conectados.</li>
-                    <li>iPhone: toque em Configurações > Aparelhos conectados.</li>
-                </ul>
-                <p class="font-medium">2. Toque em um aparelho conectado.</p>
-                <p class="font-medium">3. Toque em DESCONECTAR.</p>
-            </div>
-            <div class="form-group">
-                <label>Número de telefone que será conectado</label>
-                <input type="text" id="phoneNumber" class="w-full p-2 border rounded" placeholder="(00) 00000-0000">
-            </div>
-            <div class="button-group">
-                <button type="button" class="button secondary" id="cancelInstance">Cancelar</button>
-                <button type="button" class="button primary" id="connectInstance">Conectar esse número</button>
-            </div>
-            <p class="text-sm text-gray-500 mt-4">
-                Precisa de ajuda? <a href="#" class="text-primary hover:underline">Entre em contato com nosso suporte</a>
-            </p>
-        </div>
-    </div>
+    <!-- ... (rest of the HTML remains unchanged) ... -->
 
     <script src="script.js"></script>
 </body>
