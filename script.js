@@ -1,246 +1,381 @@
-const internalPrompts = [
-  {
-    name: "N8N Assistant",
-    content: `Você é o N8N A.I Assistant, um assistente avançado criado pela Nskha, parceiro verificado da n8n.io. Você ajuda a construir workflows N8N, gera JSON workflows, fornece suporte à criação de nodes com passos detalhados e oferece ideias inovadoras. Ao iniciar, pergunte se o usuário é iniciante ou avançado em n8n.
-
-Para iniciantes:
-- Forneça explicações detalhadas e evite jargão técnico
-- Ofereça instruções passo a passo com orientação clara
-- Explique conceitos minuciosamente com exemplos
-
-Para avançados:
-- Use linguagem técnica apropriada
-- Forneça respostas concisas focando em eficiência
-- Assuma familiaridade com conceitos n8n
-
-Ao escrever expressões complexas, use o padrão IIFE:
-{{(() => {
-  const data = $input.item.json;
-  /* Lógica complexa */
-  return result;
-})()}}
-
-Regras principais:
-1. Acesso a dados:
-   - Use $input.item.json em padrões IIFE
-   - Use $json em expressões simples
-   - Use $('NodeName') para acessar outros nodes
-
-2. Expressões:
-   - Simples ({ }): operações únicas, matemática básica
-   - Complexas ({{(() => {})()}}): múltiplas operações, processamento de arrays
-
-3. Tratamento de tipos:
-   - Considere conversão quando necessário
-   - Use parseInt, toString
-   - Trate casos null/undefined
-
-4. Performance:
-   - Mantenha expressões simples
-   - Use returns antecipados
-   - Evite loops desnecessários
-
-5. Debugging:
-   - Use console.log para debug
-   - Divida operações complexas
-   - Use nomes significativos
-
-Ao fornecer workflows:
-- Use as versões mais recentes dos nodes
-- Preencha todos os campos obrigatórios
-- Valide o código JSON
-- Inclua URLs e referências reais
-- Evite IDs placeholder
-- Teste a funcionalidade dos nodes
-
-Use markdown para formatação e estruturação das respostas.`,
-  },
-  {
-    name: "Criador de Tabelas",
-    content:
-      "Você é um especialista em modelagem de dados para Supabase e Baserow. Suas responsabilidades incluem: 1) Definir estruturas de tabelas otimizadas, 2) Recomendar tipos de dados apropriados, 3) Estabelecer relacionamentos entre tabelas, 4) Implementar constraints e validações, 5) Configurar índices para performance, 6) Definir políticas de RLS (Row Level Security), 7) Criar views e funções quando necessário, 8) Otimizar queries e performance. Sempre considere as melhores práticas de cada plataforma. Use markdown para formatação e estruturação das respostas.",
-  },
-  {
-    name: "Gerador de Prompts",
-    content:
-      "Você é um especialista em engenharia de prompts para IAs. Suas responsabilidades incluem: 1) Criar prompts claros e específicos, 2) Definir o papel e comportamento do assistente, 3) Estabelecer restrições e limitações, 4) Incluir exemplos relevantes, 5) Definir formato de saída esperado, 6) Adicionar instruções de tratamento de erro, 7) Implementar verificações de qualidade, 8) Otimizar tokens utilizados. Sempre considere o contexto e objetivo final. Use markdown para formatação e estruturação das respostas.",
-  },
-]
-
-let conversationHistory = []
-let selectedPrompt = null
-let isConfigured = false
-
-// Initialize Lucide icons
-lucide.createIcons()
-
-// Load prompts into select element
-function loadPrompts() {
-  const promptSelect = document.getElementById("promptSelect")
-  promptSelect.innerHTML = '<option value="">Selecione um prompt</option>'
-  internalPrompts.forEach((prompt, index) => {
-    const option = document.createElement("option")
-    option.value = index
-    option.textContent = prompt.name
-    promptSelect.appendChild(option)
-  })
-}
-
-// Save selection and activate chat
-function saveSelection() {
-  const promptSelect = document.getElementById("promptSelect")
-  const apiKey = document.getElementById("apiKey").value
-
-  if (!promptSelect.value || !apiKey) {
-    alert("Por favor, selecione um prompt e insira a chave da API antes de continuar.")
-    return
+document.addEventListener("DOMContentLoaded", () => {
+  // Estado global
+  const state = {
+    currentStep: 1,
+    agents: [],
+    chats: {},
+    conversationHistory: {},
   }
 
-  selectedPrompt = internalPrompts[promptSelect.value]
-  isConfigured = true
+  // Elementos do DOM
+  const createAgentBtn = document.getElementById("createAgent")
+  const createAgentModal = document.getElementById("createAgentModal")
+  const cancelAgentBtn = document.getElementById("cancelAgent")
+  const agentForm = document.getElementById("agentForm")
+  const openaiKeyInput = document.getElementById("openaiKey")
+  const chatAgentSelect = document.getElementById("chatAgent")
+  const messageInput = document.getElementById("messageInput")
+  const sendMessageBtn = document.getElementById("sendMessage")
+  const resetChatBtn = document.getElementById("resetChat")
+  const chatMessages = document.getElementById("chatMessages")
+  const createInstanceBtn = document.getElementById("createInstance")
+  const createInstanceModal = document.getElementById("createInstanceModal")
+  const cancelInstanceBtn = document.getElementById("cancelInstance")
+  const connectInstanceBtn = document.getElementById("connectInstance")
 
-  // Enable chat elements
-  document.getElementById("userInput").disabled = false
-  document.getElementById("sendMessage").disabled = false
-  document.getElementById("resetChat").disabled = false
-  document.getElementById("changePrompt").disabled = false
-
-  // Disable only API key input and save button
-  document.getElementById("apiKey").disabled = true
-  document.getElementById("saveSelection").disabled = true
-
-  // Add initial message
-  addMessageToChat("bot", "### Bem-vindo! 👋\nComo posso ajudar você hoje?")
-}
-
-// Change prompt function
-function changePrompt() {
-  const promptSelect = document.getElementById("promptSelect")
-  selectedPrompt = internalPrompts[promptSelect.value]
-
-  // Reset chat with new prompt
-  conversationHistory = []
-  document.getElementById("chatMessages").innerHTML = ""
-  addMessageToChat(
-    "bot",
-    `### Prompt Alterado\nAgora você está conversando com o *${selectedPrompt.name}*. Como posso ajudar?`,
-  )
-}
-
-// Reset chat
-function resetChat() {
-  conversationHistory = []
-  document.getElementById("chatMessages").innerHTML = ""
-  addMessageToChat("bot", "### Chat Resetado\nComo posso ajudar?")
-}
-
-// Send message to bot
-async function sendMessage() {
-  if (!isConfigured) {
-    alert("Por favor, configure o prompt e a chave da API primeiro.")
-    return
-  }
-
-  const userInput = document.getElementById("userInput")
-  const message = userInput.value.trim()
-  if (!message) return
-
-  addMessageToChat("user", message)
-  userInput.value = ""
-
-  conversationHistory.push({
-    role: "user",
-    content: message,
-  })
-
-  try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${document.getElementById("apiKey").value}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [
-          {
-            role: "system",
-            content: selectedPrompt.content,
-          },
-          ...conversationHistory,
-        ],
-        temperature: 0.7,
-        max_tokens: 2000,
-      }),
-    })
-
-    const data = await response.json()
-    if (data.error) {
-      throw new Error(data.error.message)
+  // Gerenciamento dos Modais
+  function setupModal(modalElement, openBtn, closeBtn) {
+    if (openBtn) {
+      openBtn.addEventListener("click", () => {
+        modalElement.classList.add("active")
+      })
     }
 
-    const botResponse = data.choices[0].message.content
-    conversationHistory.push({
-      role: "assistant",
-      content: botResponse,
-    })
-    addMessageToChat("bot", botResponse)
-  } catch (error) {
-    addMessageToChat("bot", `### Erro ❌\n${error.message}`)
-  }
-}
-
-// Add message to chat
-function addMessageToChat(role, content) {
-  const chatMessages = document.getElementById("chatMessages")
-  const messageDiv = document.createElement("div")
-  messageDiv.className = `message ${role}`
-
-  const messageContent = document.createElement("div")
-  messageContent.className = "message-content"
-  messageContent.innerHTML = marked.parse(content)
-
-  // Adicione botões de cópia para blocos de código
-  messageContent.querySelectorAll("pre").forEach((pre) => {
-    const copyButton = document.createElement("button")
-    copyButton.textContent = "Copiar"
-    copyButton.className = "copy-button"
-    copyButton.addEventListener("click", () => {
-      const code = pre.querySelector("code").textContent
-      navigator.clipboard.writeText(code).then(() => {
-        copyButton.textContent = "Copiado!"
-        setTimeout(() => {
-          copyButton.textContent = "Copiar"
-        }, 2000)
+    if (closeBtn) {
+      closeBtn.addEventListener("click", () => {
+        modalElement.classList.remove("active")
+        const form = modalElement.querySelector("form")
+        if (form) form.reset()
       })
+    }
+
+    modalElement.addEventListener("click", (e) => {
+      if (e.target === modalElement) {
+        modalElement.classList.remove("active")
+        const form = modalElement.querySelector("form")
+        if (form) form.reset()
+      }
     })
-    pre.appendChild(copyButton)
+  }
+
+  setupModal(createAgentModal, createAgentBtn, cancelAgentBtn)
+  setupModal(createInstanceModal, createInstanceBtn, cancelInstanceBtn)
+
+  // Gerenciamento de Agentes
+  if (agentForm) {
+    agentForm.addEventListener("submit", function (e) {
+      e.preventDefault()
+
+      const formData = new FormData(this)
+      const agent = {
+        id: Date.now(),
+        name: formData.get("name"),
+        personality: formData.get("personality"),
+        knowledge: formData.get("knowledge"),
+        icon: formData.get("icon"),
+        responseFormat: formData.get("responseFormat"),
+        model: "gpt-4",
+      }
+
+      if (!agent.name || !agent.personality) {
+        alert("Por favor, preencha todos os campos obrigatórios")
+        return
+      }
+
+      state.agents.push(agent)
+      state.conversationHistory[agent.id] = []
+      updateAgentsList()
+      updateChatAgentSelect()
+      this.reset()
+      createAgentModal.classList.remove("active")
+      localStorage.setItem("agents", JSON.stringify(state.agents))
+    })
+  }
+
+  // Atualização da lista de agentes
+  function updateAgentsList() {
+    const agentsList = document.getElementById("agentsList")
+    if (!agentsList) return
+
+    agentsList.innerHTML =
+      state.agents.length === 0
+        ? `<div class="text-center p-8 bg-white rounded-lg shadow">
+                   <img src="https://api.iconify.design/lucide:bot.svg" alt="Robot" class="mx-auto mb-4 w-16 h-16 text-primary">
+                   <h2 class="text-2xl font-bold mb-2">Vamos criar seu primeiro agente?</h2>
+                   <p class="text-gray-600 mb-4">Nenhum agente foi cadastrado, crie seu primeiro agente em 5 minutos.</p>
+                   <button class="button primary" onclick="document.getElementById('createAgent').click()">CRIAR AGENTE</button>
+               </div>`
+        : state.agents
+            .map(
+              (agent) => `
+                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                    <div class="agent-header">
+                        <img src="https://api.iconify.design/lucide:${agent.icon}.svg" alt="${agent.name}" class="w-8 h-8">
+                        <h3 class="text-xl font-semibold">${agent.name}</h3>
+                    </div>
+                    <p class="text-gray-600 mb-2">Personalidade: ${agent.personality}</p>
+                    <p class="text-gray-600 mb-4">Formato de Resposta: ${agent.responseFormat}</p>
+                    <div class="flex justify-between gap-2">
+                        <button class="button secondary small" onclick="editAgent(${agent.id})">Editar</button>
+                        <button class="button primary small" onclick="startChatWithAgent(${agent.id})">Chat</button>
+                        <button class="button danger small" onclick="deleteAgent(${agent.id})">Excluir</button>
+                    </div>
+                </div>
+            `,
+            )
+            .join("")
+  }
+
+  // Funções de gerenciamento de agentes
+  window.editAgent = (agentId) => {
+    const agent = state.agents.find((a) => a.id === agentId)
+    if (!agent) return
+
+    createAgentModal.classList.add("active")
+    const form = document.getElementById("agentForm")
+
+    form.querySelector("#agentName").value = agent.name
+    form.querySelector("#agentPersonality").value = agent.personality
+    form.querySelector("#agentKnowledge").value = agent.knowledge || ""
+    form.querySelector("#agentIcon").value = agent.icon
+    form.querySelector("#responseFormat").value = agent.responseFormat
+
+    form.onsubmit = (e) => {
+      e.preventDefault()
+      const formData = new FormData(form)
+
+      const updatedAgent = {
+        ...agent,
+        name: formData.get("name"),
+        personality: formData.get("personality"),
+        knowledge: formData.get("knowledge"),
+        icon: formData.get("icon"),
+        responseFormat: formData.get("responseFormat"),
+      }
+
+      const index = state.agents.findIndex((a) => a.id === agentId)
+      state.agents[index] = updatedAgent
+
+      updateAgentsList()
+      updateChatAgentSelect()
+      form.reset()
+      createAgentModal.classList.remove("active")
+      localStorage.setItem("agents", JSON.stringify(state.agents))
+
+      form.onsubmit = null
+    }
+  }
+
+  window.deleteAgent = (agentId) => {
+    if (!confirm("Tem certeza que deseja excluir este agente?")) return
+
+    state.agents = state.agents.filter((a) => a.id !== agentId)
+    delete state.conversationHistory[agentId]
+    updateAgentsList()
+    updateChatAgentSelect()
+    localStorage.setItem("agents", JSON.stringify(state.agents))
+  }
+
+  window.startChatWithAgent = (agentId) => {
+    const agent = state.agents.find((a) => a.id === agentId)
+    if (!agent) return
+
+    navigateToPage("chatsPage")
+
+    if (chatAgentSelect) {
+      chatAgentSelect.value = agent.id
+      loadChatHistory(agent.id)
+    }
+  }
+
+  // Gerenciamento do Chat
+  function updateChatAgentSelect() {
+    if (!chatAgentSelect) return
+
+    chatAgentSelect.innerHTML = `
+            <option value="">Selecione um agente</option>
+            ${state.agents
+              .map(
+                (agent) => `
+                <option value="${agent.id}">${agent.name}</option>
+            `,
+              )
+              .join("")}
+        `
+  }
+
+  function loadChatHistory(agentId) {
+    if (!chatMessages) return
+
+    chatMessages.innerHTML = ""
+    const history = state.conversationHistory[agentId] || []
+    history.forEach((msg) => {
+      addMessageToChat(msg.role, msg.content)
+    })
+  }
+
+  if (chatAgentSelect) {
+    chatAgentSelect.addEventListener("change", () => {
+      const agentId = Number.parseInt(chatAgentSelect.value)
+      if (agentId) {
+        loadChatHistory(agentId)
+      }
+    })
+  }
+
+  if (sendMessageBtn && messageInput && chatMessages) {
+    sendMessageBtn.addEventListener("click", async () => {
+      const message = messageInput.value.trim()
+      const selectedAgentId = Number.parseInt(chatAgentSelect.value)
+      const openaiKey = openaiKeyInput.value
+
+      if (!message || !selectedAgentId || !openaiKey) {
+        alert("Por favor, preencha todos os campos necessários")
+        return
+      }
+
+      const agent = state.agents.find((a) => a.id === selectedAgentId)
+      if (!agent) return
+
+      messageInput.value = ""
+      addMessageToChat("user", message)
+
+      try {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${openaiKey}`,
+          },
+          body: JSON.stringify({
+            model: agent.model || "gpt-4",
+            messages: [
+              {
+                role: "system",
+                content: `Você é um assistente com a seguinte personalidade: ${agent.personality}. ${agent.knowledge ? `Você tem o seguinte conhecimento específico: ${agent.knowledge}` : ""}`,
+              },
+              ...(state.conversationHistory[agent.id] || []),
+              { role: "user", content: message },
+            ],
+            temperature: 0.7,
+            max_tokens: 2000,
+          }),
+        })
+
+        const data = await response.json()
+        if (data.error) {
+          throw new Error(data.error.message)
+        }
+
+        const botResponse = data.choices[0].message.content
+        addMessageToChat("assistant", botResponse)
+
+        // Atualiza o histórico
+        if (!state.conversationHistory[agent.id]) {
+          state.conversationHistory[agent.id] = []
+        }
+        state.conversationHistory[agent.id].push(
+          { role: "user", content: message },
+          { role: "assistant", content: botResponse },
+        )
+      } catch (error) {
+        addMessageToChat("error", `Erro: ${error.message}`)
+      }
+    })
+
+    // Adiciona suporte a Enter para enviar mensagem
+    messageInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault()
+        sendMessageBtn.click()
+      }
+    })
+  }
+
+  if (resetChatBtn) {
+    resetChatBtn.addEventListener("click", () => {
+      if (!confirm("Tem certeza que deseja resetar a conversa?")) return
+
+      const selectedAgentId = Number.parseInt(chatAgentSelect.value)
+      if (selectedAgentId) {
+        state.conversationHistory[selectedAgentId] = []
+        chatMessages.innerHTML = ""
+        addMessageToChat("system", "Conversa resetada. Como posso ajudar?")
+      }
+    })
+  }
+
+  function addMessageToChat(role, content) {
+    const messageDiv = document.createElement("div")
+    messageDiv.className = `message ${role} p-3 mb-2 rounded-lg max-w-[80%] ${
+      role === "user"
+        ? "bg-primary text-white ml-auto"
+        : role === "error"
+          ? "bg-danger text-white"
+          : role === "system"
+            ? "bg-secondary text-white text-center mx-auto"
+            : "bg-gray-100"
+    }`
+
+    // Renderiza markdown se não for mensagem de erro ou sistema
+    if (role !== "error" && role !== "system") {
+      const formattedContent = marked.parse(content)
+      messageDiv.innerHTML = formattedContent
+
+      // Adiciona botões de cópia para blocos de código
+      messageDiv.querySelectorAll("pre").forEach((pre) => {
+        const copyButton = document.createElement("button")
+        copyButton.textContent = "Copiar"
+        copyButton.className = "copy-button button secondary small absolute top-2 right-2"
+        copyButton.addEventListener("click", () => {
+          const code = pre.querySelector("code").textContent
+          navigator.clipboard.writeText(code).then(() => {
+            copyButton.textContent = "Copiado!"
+            setTimeout(() => {
+              copyButton.textContent = "Copiar"
+            }, 2000)
+          })
+        })
+        pre.style.position = "relative"
+        pre.appendChild(copyButton)
+      })
+    } else {
+      messageDiv.textContent = content
+    }
+
+    chatMessages.appendChild(messageDiv)
+    chatMessages.scrollTop = chatMessages.scrollHeight
+  }
+
+  // Carregamento inicial
+  const savedAgents = localStorage.getItem("agents")
+  if (savedAgents) {
+    state.agents = JSON.parse(savedAgents)
+    state.agents.forEach((agent) => {
+      if (!state.conversationHistory[agent.id]) {
+        state.conversationHistory[agent.id] = []
+      }
+    })
+    updateAgentsList()
+    updateChatAgentSelect()
+  }
+
+  // Navegação
+  const navItems = document.querySelectorAll(".nav-item")
+  navItems.forEach((item) => {
+    item.addEventListener("click", () => {
+      const pageName = item.dataset.page
+      if (pageName) {
+        navigateToPage(pageName)
+      }
+    })
   })
 
-  messageDiv.appendChild(messageContent)
-  chatMessages.appendChild(messageDiv)
-  chatMessages.scrollTop = chatMessages.scrollHeight
-}
+  function navigateToPage(pageName) {
+    const pages = document.querySelectorAll(".page")
+    pages.forEach((page) => {
+      page.classList.add("hidden")
+      page.classList.remove("active")
+    })
+    navItems.forEach((nav) => nav.classList.remove("active"))
 
-// Handle keypress events
-function handleKeyPress(event) {
-  if (event.key === "Enter" && !event.shiftKey) {
-    event.preventDefault()
-    sendMessage()
-  }
-}
+    const selectedPage = document.getElementById(pageName)
+    const selectedNav = document.querySelector(`[data-page="${pageName}"]`)
 
-// Event listeners
-document.getElementById("sendMessage").addEventListener("click", sendMessage)
-document.getElementById("userInput").addEventListener("keydown", handleKeyPress)
-document.getElementById("resetChat").addEventListener("click", resetChat)
-document.getElementById("saveSelection").addEventListener("click", saveSelection)
-document.getElementById("changePrompt").addEventListener("click", changePrompt)
-document.getElementById("promptSelect").addEventListener("change", () => {
-  if (isConfigured) {
-    changePrompt()
+    if (selectedPage && selectedNav) {
+      selectedPage.classList.remove("hidden")
+      selectedPage.classList.add("active")
+      selectedNav.classList.add("active")
+    }
   }
 })
-
-// Initialize prompts when page loads
-document.addEventListener("DOMContentLoaded", loadPrompts)
